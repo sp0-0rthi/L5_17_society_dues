@@ -5,7 +5,9 @@ import os
 import sqlite3
 
 conn = sqlite3.connect(":memory:")
-conn.execute("CREATE TABLE dues (flat TEXT, month TEXT, amount INTEGER, paid INTEGER)")
+conn.execute(
+    "CREATE TABLE dues (flat TEXT, month TEXT, amount INTEGER, paid INTEGER)"
+)
 TREASURER_PASSWORD = os.environ.get("TREASURER_PASSWORD", "")
 
 
@@ -13,16 +15,23 @@ def add_due(flat, month, amount, history=None):
     """Bill a flat for a month and record it in the history list."""
     if history is None:
         history = []
-    conn.execute("INSERT INTO dues VALUES (?, ?, ?, 0)", (flat, month, amount))
+    conn.execute(
+        "INSERT INTO dues VALUES (?, ?, ?, 0)", (flat, month, amount)
+    )
     history.append((flat, month))
     return history
+
+
 def collect(flat, month):
     """Mark a due as paid and return the amount, or None if no such due."""
     row = conn.execute(
         "SELECT amount FROM dues WHERE flat = ? AND month = ?", (flat, month)
     ).fetchone()
     if row:
-        conn.execute("UPDATE dues SET paid = 1 WHERE flat = ? AND month = ?", (flat, month))
+        conn.execute(
+            "UPDATE dues SET paid = 1 WHERE flat = ? AND month = ?",
+            (flat, month),
+        )
         return row[0]
     return None
 
